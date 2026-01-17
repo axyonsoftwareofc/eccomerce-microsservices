@@ -1,0 +1,63 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: menu-service
+
+  # Permitir override de beans (resolve o problema de duplicação temporariamente)
+  main:
+    allow-bean-definition-overriding: true
+
+  # R2DBC PostgreSQL
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/menu_db
+    username: postgres
+    password: postgres
+
+  # Criar tabelas automaticamente
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  # Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    topics:
+      menu-events: menu-events
+
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.ecommerce.menu: DEBUG
+    org.springframework.r2dbc: DEBUG
+    org.springframework.data.r2dbc: DEBUG
+
+# OpenAPI
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
