@@ -1,4 +1,3 @@
-// application/service/RestaurantService.java
 package com.ecommerce.restaurant.application.service;
 
 import com.ecommerce.restaurant.application.dto.request.CreateRestaurantRequest;
@@ -104,6 +103,7 @@ public class RestaurantService {
                     updateFields(restaurant, request);
                     return restaurantRepository.save(restaurant);
                 })
+                .doOnSuccess(eventProducer::sendRestaurantUpdated)
                 .map(restaurantMapper::toResponse);
     }
 
@@ -131,6 +131,7 @@ public class RestaurantService {
                     restaurant.close();
                     return restaurantRepository.save(restaurant);
                 })
+                .doOnSuccess(eventProducer::sendRestaurantClosed)
                 .map(restaurantMapper::toResponse);
     }
 
@@ -144,6 +145,7 @@ public class RestaurantService {
                     restaurant.activate();
                     return restaurantRepository.save(restaurant);
                 })
+                .doOnSuccess(eventProducer::sendRestaurantActivated)
                 .map(restaurantMapper::toResponse);
     }
 
@@ -157,6 +159,7 @@ public class RestaurantService {
                     restaurant.suspend();
                     return restaurantRepository.save(restaurant);
                 })
+                .doOnSuccess(eventProducer::sendRestaurantSuspended)
                 .map(restaurantMapper::toResponse);
     }
 
@@ -170,6 +173,7 @@ public class RestaurantService {
                     restaurant.pauseOrders();
                     return restaurantRepository.save(restaurant);
                 })
+                .doOnSuccess(eventProducer::sendOrdersPaused)
                 .map(restaurantMapper::toResponse);
     }
 
@@ -183,6 +187,7 @@ public class RestaurantService {
                     restaurant.resumeOrders();
                     return restaurantRepository.save(restaurant);
                 })
+                .doOnSuccess(eventProducer::sendOrdersResumed)
                 .map(restaurantMapper::toResponse);
     }
 
@@ -192,7 +197,10 @@ public class RestaurantService {
 
         return restaurantRepository.findById(id)
                 .switchIfEmpty(Mono.error(new RestaurantNotFoundException(id)))
-                .flatMap(restaurant -> restaurantRepository.deleteById(id));
+                .flatMap(restaurant ->
+                        restaurantRepository.deleteById(id)
+                                .doOnSuccess(v -> eventProducer.sendRestaurantDeleted(id, restaurant.getOwnerId()))
+                );
     }
 
     private void updateFields(Restaurant restaurant, UpdateRestaurantRequest request) {

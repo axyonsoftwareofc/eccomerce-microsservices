@@ -1,82 +1,107 @@
-// infrastructure/messaging/producer/RestaurantEventProducer.java
 package com.ecommerce.restaurant.infrastructure.messaging.producer;
 
 import com.ecommerce.restaurant.domain.entity.Restaurant;
+import com.ecommerce.restaurant.infrastructure.messaging.event.RestaurantEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class RestaurantEventProducer {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, RestaurantEvent> kafkaTemplate;
 
-    private static final String RESTAURANT_EVENTS_TOPIC = "restaurant-events";
+    @Value("${spring.kafka.topics.restaurant-events:restaurant-events}")
+    private String restaurantEventsTopic;
 
     public void sendRestaurantCreated(Restaurant restaurant) {
-        var event = Map.of(
-                "eventType", "RESTAURANT_CREATED",
-                "restaurantId", restaurant.getId().toString(),
-                "ownerId", restaurant.getOwnerId().toString(),
-                "name", restaurant.getName(),
-                "timestamp", System.currentTimeMillis()
-        );
-
-        kafkaTemplate.send(RESTAURANT_EVENTS_TOPIC, restaurant.getId().toString(), event)
-                .whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        log.error("Failed to send restaurant created event: {}", ex.getMessage());
-                    } else {
-                        log.info("Restaurant created event sent: {}", restaurant.getId());
-                    }
-                });
+        RestaurantEvent event = buildEvent(restaurant, RestaurantEvent.EventType.RESTAURANT_CREATED);
+        sendEvent(event);
+        log.info("Restaurant created event sent: {}", restaurant.getId());
     }
 
-    public void sendRestaurantStatusChanged(Restaurant restaurant, String previousStatus) {
-        var event = Map.of(
-                "eventType", "RESTAURANT_STATUS_CHANGED",
-                "restaurantId", restaurant.getId().toString(),
-                "previousStatus", previousStatus,
-                "newStatus", restaurant.getStatus().name(),
-                "timestamp", System.currentTimeMillis()
-        );
+    public void sendRestaurantUpdated(Restaurant restaurant) {
+        RestaurantEvent event = buildEvent(restaurant, RestaurantEvent.EventType.RESTAURANT_UPDATED);
+        sendEvent(event);
+        log.info("Restaurant updated event sent: {}", restaurant.getId());
+    }
 
-        kafkaTemplate.send(RESTAURANT_EVENTS_TOPIC, restaurant.getId().toString(), event)
-                .whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        log.error("Failed to send status changed event: {}", ex.getMessage());
-                    } else {
-                        log.info("Restaurant status changed event sent: {}", restaurant.getId());
-                    }
-                });
+    public void sendRestaurantDeleted(UUID restaurantId, UUID ownerId) {
+        RestaurantEvent event = RestaurantEvent.builder()
+                .eventId(UUID.randomUUID())
+                .eventType(RestaurantEvent.EventType.RESTAURANT_DELETED)
+                .restaurantId(restaurantId)
+                .ownerId(ownerId)
+                .timestamp(LocalDateTime.now())
+                .build();
+        sendEvent(event);
+        log.info("Restaurant deleted event sent: {}", restaurantId);
     }
 
     public void sendRestaurantOpened(Restaurant restaurant) {
-        var event = Map.of(
-                "eventType", "RESTAURANT_OPENED",
-                "restaurantId", restaurant.getId().toString(),
-                "name", restaurant.getName(),
-                "timestamp", System.currentTimeMillis()
-        );
-
-        kafkaTemplate.send(RESTAURANT_EVENTS_TOPIC, restaurant.getId().toString(), event);
+        RestaurantEvent event = buildEvent(restaurant, RestaurantEvent.EventType.RESTAURANT_OPENED);
+        sendEvent(event);
         log.info("Restaurant opened event sent: {}", restaurant.getId());
     }
 
     public void sendRestaurantClosed(Restaurant restaurant) {
-        var event = Map.of(
-                "eventType", "RESTAURANT_CLOSED",
-                "restaurantId", restaurant.getId().toString(),
-                "name", restaurant.getName(),
-                "timestamp", System.currentTimeMillis()
-        );
-
-        kafkaTemplate.send(RESTAURANT_EVENTS_TOPIC, restaurant.getId().toString(), event);
+        RestaurantEvent event = buildEvent(restaurant, RestaurantEvent.EventType.RESTAURANT_CLOSED);
+        sendEvent(event);
         log.info("Restaurant closed event sent: {}", restaurant.getId());
+    }
+
+    public void sendRestaurantActivated(Restaurant restaurant) {
+        RestaurantEvent event = buildEvent(restaurant, RestaurantEvent.EventType.RESTAURANT_ACTIVATED);
+        sendEvent(event);
+        log.info("Restaurant activated event sent: {}", restaurant.getId());
+    }
+
+    public void sendRestaurantSuspended(Restaurant restaurant) {
+        RestaurantEvent event = buildEvent(restaurant, RestaurantEvent.EventType.RESTAURANT_SUSPENDED);
+        sendEvent(event);
+        log.info("Restaurant suspended event sent: {}", restaurant.getId());
+    }
+
+    public void sendOrdersPaused(Restaurant restaurant) {
+        RestaurantEvent event = buildEvent(restaurant, RestaurantEvent.EventType.RESTAURANT_ORDERS_PAUSED);
+        sendEvent(event);
+        log.info("Restaurant orders paused event sent: {}", restaurant.getId());
+    }
+
+    public void sendOrdersResumed(Restaurant restaurant) {
+        RestaurantEvent event = buildEvent(restaurant, RestaurantEvent.EventType.RESTAURANT_ORDERS_RESUMED);
+        sendEvent(event);
+        log.info("Restaurant orders resumed event sent: {}", restaurant.getId());
+    }
+
+    private RestaurantEvent buildEvent(Restaurant restaurant, RestaurantEvent.EventType eventType) {
+        return RestaurantEvent.builder()
+                .eventId(UUID.randomUUID())
+                .eventType(eventType)
+                .restaurantId(restaurant.getId())
+                .ownerId(restaurant.getOwnerId())
+                .name(restaurant.getName())
+                .status(restaurant.getStatus() != null ? restaurant.getStatus().name() : null)
+                .isOpen(restaurant.getIsOpen())
+                .isAcceptingOrders(restaurant.getIsAcceptingOrders())
+                .rating(restaurant.getRating())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    private void sendEvent(RestaurantEvent event) {
+        kafkaTemplate.send(restaurantEventsTopic, event.getRestaurantId().toString(), event)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Failed to send restaurant event: {}", ex.getMessage());
+                    }
+                });
     }
 }
