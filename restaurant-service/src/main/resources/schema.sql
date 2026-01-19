@@ -1,9 +1,10 @@
--- schema.sql
+-- Garantir que a extensão existe
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Categorias de restaurantes
 CREATE TABLE IF NOT EXISTS restaurant_categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL UNIQUE,
     icon_url VARCHAR(500),
     is_active BOOLEAN DEFAULT true,
     display_order INTEGER DEFAULT 0
@@ -68,16 +69,16 @@ CREATE INDEX IF NOT EXISTS idx_restaurants_status ON restaurants(status);
 CREATE INDEX IF NOT EXISTS idx_restaurants_open ON restaurants(is_open);
 CREATE INDEX IF NOT EXISTS idx_restaurants_location ON restaurants(latitude, longitude);
 
--- Inserir categorias padrão
-INSERT INTO restaurant_categories (id, name, icon_url, display_order) VALUES
-    (gen_random_uuid(), 'Pizzaria', '🍕', 1),
-    (gen_random_uuid(), 'Hamburgueria', '🍔', 2),
-    (gen_random_uuid(), 'Japonês', '🍣', 3),
-    (gen_random_uuid(), 'Italiana', '🍝', 4),
-    (gen_random_uuid(), 'Brasileira', '🍛', 5),
-    (gen_random_uuid(), 'Chinesa', '🥡', 6),
-    (gen_random_uuid(), 'Mexicana', '🌮', 7),
-    (gen_random_uuid(), 'Doces', '🍰', 8),
-    (gen_random_uuid(), 'Saudável', '🥗', 9),
-    (gen_random_uuid(), 'Açaí', '🍇', 10)
-ON CONFLICT DO NOTHING;
+-- Inserir categorias padrão (evitando duplicatas)
+INSERT INTO restaurant_categories (name, icon_url, display_order) VALUES
+    ('Pizzaria', '🍕', 1),
+    ('Hamburgueria', '🍔', 2),
+    ('Japonês', '🍣', 3),
+    ('Italiana', '🍝', 4),
+    ('Brasileira', '🍛', 5),
+    ('Chinesa', '🥡', 6),
+    ('Mexicana', '🌮', 7),
+    ('Doces', '🍰', 8),
+    ('Saudável', '🥗', 9),
+    ('Açaí', '🍇', 10)
+ON CONFLICT (name) DO NOTHING;

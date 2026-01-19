@@ -1,7 +1,7 @@
 // infrastructure/config/KafkaConfig.java
 package com.ecommerce.menu.infrastructure.config;
 
-import com.ecommerce.menu.infrastructure.messaging.event.MenuEvent;
+import com.ecommerce.menu.infrastructure.messaging.event.MenuItemEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -23,11 +23,11 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${spring.kafka.topics.product-events:product-events}")
-    private String productEventsTopic;
+    @Value("${spring.kafka.topics.menu-events:menu-events}")
+    private String menuEventsTopic;
 
     @Bean
-    public ProducerFactory<String, MenuEvent> producerFactory() {
+    public ProducerFactory<String, MenuItemEvent> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -39,13 +39,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, MenuEvent> kafkaTemplate() {
+    public KafkaTemplate<String, MenuItemEvent> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public NewTopic productEventsTopic() {
-        return TopicBuilder.name(productEventsTopic)
+    public NewTopic menuEventsTopic() {
+        return TopicBuilder.name(menuEventsTopic)
                 .partitions(3)
                 .replicas(1)
                 .build();

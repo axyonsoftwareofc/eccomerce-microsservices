@@ -8,6 +8,7 @@ import com.ecommerce.restaurant.application.mapper.RestaurantMapper;
 import com.ecommerce.restaurant.domain.entity.Restaurant;
 import com.ecommerce.restaurant.domain.entity.RestaurantStatus;
 import com.ecommerce.restaurant.domain.exception.RestaurantNotFoundException;
+import com.ecommerce.restaurant.infrastructure.messaging.producer.RestaurantEventProducer;
 import com.ecommerce.restaurant.infrastructure.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
     private final RestaurantMapper restaurantMapper;
+    private final RestaurantEventProducer eventProducer;
 
     @Transactional
     public Mono<RestaurantResponse> createRestaurant(CreateRestaurantRequest request) {
@@ -36,6 +38,7 @@ public class RestaurantService {
         restaurant.setStatus(RestaurantStatus.PENDING_APPROVAL);
 
         return restaurantRepository.save(restaurant)
+                .doOnSuccess(eventProducer::sendRestaurantCreated)
                 .map(restaurantMapper::toResponse)
                 .doOnSuccess(r -> log.info("Restaurant created: {}", r.getId()));
     }
@@ -114,6 +117,7 @@ public class RestaurantService {
                     restaurant.open();
                     return restaurantRepository.save(restaurant);
                 })
+                .doOnSuccess(eventProducer::sendRestaurantOpened)
                 .map(restaurantMapper::toResponse);
     }
 

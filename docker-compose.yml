@@ -5,7 +5,7 @@ services:
 
   # PostgreSQL - User DB
   postgres-user:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-user
     environment:
       POSTGRES_DB: user_db
@@ -25,7 +25,7 @@ services:
 
   # PostgreSQL - Restaurant DB
   postgres-restaurant:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-restaurant
     environment:
       POSTGRES_DB: restaurant_db
@@ -40,7 +40,7 @@ services:
 
   # PostgreSQL - Menu DB
   postgres-menu:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-menu
     environment:
       POSTGRES_DB: menu_db
@@ -55,7 +55,7 @@ services:
 
   # PostgreSQL - Order DB
   postgres-order:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-order
     environment:
       POSTGRES_DB: order_db
@@ -70,7 +70,7 @@ services:
 
   # PostgreSQL - Payment DB
   postgres-payment:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-payment
     environment:
       POSTGRES_DB: payment_db
@@ -85,7 +85,7 @@ services:
 
   # PostgreSQL - Delivery DB
   postgres-delivery:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-delivery
     environment:
       POSTGRES_DB: delivery_db
@@ -100,7 +100,7 @@ services:
 
   # PostgreSQL - Driver DB
   postgres-driver:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-driver
     environment:
       POSTGRES_DB: driver_db
@@ -115,7 +115,7 @@ services:
 
   # PostgreSQL - Tracking DB
   postgres-tracking:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-tracking
     environment:
       POSTGRES_DB: tracking_db
@@ -130,7 +130,7 @@ services:
 
   # PostgreSQL - Review DB
   postgres-review:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-review
     environment:
       POSTGRES_DB: review_db
@@ -145,7 +145,7 @@ services:
 
   # PostgreSQL - Promotion DB
   postgres-promotion:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: postgres-promotion
     environment:
       POSTGRES_DB: promotion_db

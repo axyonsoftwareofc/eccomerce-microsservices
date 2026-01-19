@@ -1,7 +1,8 @@
+// infrastructure/exception/GlobalExceptionHandler.java
 package com.ecommerce.menu.infrastructure.exception;
 
-import com.ecommerce.menu.domain.exception.MenuAlreadyExistsException;
-import com.ecommerce.menu.domain.exception.MenuNotFoundException;
+import com.ecommerce.menu.domain.exception.CategoryNotFoundException;
+import com.ecommerce.menu.domain.exception.MenuItemNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,20 +19,20 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MenuNotFoundException.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleNotFound(MenuNotFoundException ex) {
-        log.warn("Menu not found: {}", ex.getMessage());
+    @ExceptionHandler(MenuItemNotFoundException.class)
+    public Mono<ResponseEntity<Map<String, Object>>> handleMenuItemNotFound(MenuItemNotFoundException ex) {
+        log.warn("Menu item not found: {}", ex.getMessage());
         return Mono.just(ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage())));
     }
 
-    @ExceptionHandler(MenuAlreadyExistsException.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleAlreadyExists(MenuAlreadyExistsException ex) {
-        log.warn("Menu already exists: {}", ex.getMessage());
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public Mono<ResponseEntity<Map<String, Object>>> handleCategoryNotFound(CategoryNotFoundException ex) {
+        log.warn("Category not found: {}", ex.getMessage());
         return Mono.just(ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(buildError(HttpStatus.CONFLICT, ex.getMessage())));
+                .status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage())));
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
