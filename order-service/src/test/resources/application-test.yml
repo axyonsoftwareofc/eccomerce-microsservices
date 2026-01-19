@@ -15,6 +15,14 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:9092
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false
+
+  cloud:
+    discovery:
+      enabled: false
 
 eureka:
   client:
@@ -23,4 +31,4 @@ eureka:
 logging:
   level:
     root: WARN
-    com.ecommerce: DEBUG
+    com.ecommerce: INFO

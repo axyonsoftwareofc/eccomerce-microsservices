@@ -4,6 +4,7 @@ package com.ecommerce.restaurant.application.service;
 import com.ecommerce.restaurant.application.dto.request.CreateRestaurantRequest;
 import com.ecommerce.restaurant.application.dto.request.UpdateRestaurantRequest;
 import com.ecommerce.restaurant.application.dto.response.RestaurantResponse;
+import com.ecommerce.restaurant.config.TestConfig;
 import com.ecommerce.restaurant.domain.entity.RestaurantStatus;
 import com.ecommerce.restaurant.domain.exception.RestaurantNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.test.StepVerifier;
 
@@ -18,8 +20,9 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.UUID;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
+@Import(TestConfig.class)
 @DisplayName("RestaurantService Tests")
 class RestaurantServiceTest {
 

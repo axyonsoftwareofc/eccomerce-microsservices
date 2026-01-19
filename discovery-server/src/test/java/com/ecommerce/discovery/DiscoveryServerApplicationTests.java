@@ -3,12 +3,19 @@ package com.ecommerce.discovery;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@TestPropertySource(properties = {
+        "eureka.client.enabled=false",
+        "eureka.client.register-with-eureka=false",
+        "eureka.client.fetch-registry=false",
+        "spring.cloud.discovery.enabled=false"
+})
 class DiscoveryServerApplicationTests {
 
     @Test
     void contextLoads() {
-        // Discovery Server inicializa corretamente
+        // Context loads successfully
     }
 }

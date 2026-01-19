@@ -1,56 +1,35 @@
-server:
-  port: 8082
-
+# restaurant-service/src/test/resources/application-test.yml
 spring:
   application:
-    name: restaurant-service
+    name: restaurant-service-test
 
   r2dbc:
-    url: r2dbc:postgresql://postgres:postgres@localhost:5433/restaurant_db
-    username: postgres
-    password: postgres
-    pool:
-      initial-size: 5
-      max-size: 10
-      max-idle-time: 30m
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password:
 
   sql:
     init:
-      mode: never
-      schema-locations: classpath:schema.sql
+      mode: always
+      schema-locations: classpath:schema-test.sql
 
   kafka:
     bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      topics:
-        restaurant-events: restaurant-events
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false
+
+  cloud:
+    discovery:
+      enabled: false
 
 eureka:
   client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${random.uuid}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: always
+    enabled: false
 
 logging:
   level:
-    com.ecommerce.restaurant: DEBUG
-    io.r2dbc.postgresql: DEBUG
-
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
+    root: WARN
+    com.ecommerce: INFO
+    org.springframework.r2dbc: DEBUG

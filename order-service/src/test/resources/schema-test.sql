@@ -1,6 +1,4 @@
 -- order-service/src/test/resources/schema-test.sql
-
--- Limpa tabelas se existirem (útil para testes)
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 
@@ -45,11 +43,10 @@ CREATE TABLE order_items (
     total_price DECIMAL(10, 2) NOT NULL,
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
 
--- Índices para performance
-CREATE INDEX idx_orders_customer_id ON orders(customer_id);
-CREATE INDEX idx_orders_restaurant_id ON orders(restaurant_id);
+CREATE INDEX idx_orders_customer ON orders(customer_id);
+CREATE INDEX idx_orders_restaurant ON orders(restaurant_id);
 CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_order ON order_items(order_id);
