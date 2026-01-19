@@ -1,3 +1,4 @@
+# order-service/src/main/resources/application.yml
 server:
   port: 8083
 
@@ -16,16 +17,25 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:9092
+    # Producer config
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    # Consumer config
     consumer:
-      group-id: order-service
+      group-id: order-service-group
       auto-offset-reset: earliest
+      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "*"
+        spring.json.trusted.packages: com.ecommerce.*
+    # Topics
+    topics:
+      order-events: order-events
+      restaurant-events: restaurant-events
 
 eureka:
   client:
@@ -47,7 +57,8 @@ management:
 logging:
   level:
     com.ecommerce.order: DEBUG
-    io.r2dbc.postgresql: DEBUG
+    org.apache.kafka: WARN
+    org.springframework.kafka: INFO
 
 springdoc:
   api-docs:
