@@ -12,6 +12,7 @@ import com.ecommerce.menu.domain.entity.MenuItem;
 import com.ecommerce.menu.domain.entity.MenuItemAddon;
 import com.ecommerce.menu.domain.entity.MenuItemVariant;
 import com.ecommerce.menu.domain.exception.MenuItemNotFoundException;
+import com.ecommerce.menu.infrastructure.messaging.producer.MenuEventProducer;
 import com.ecommerce.menu.infrastructure.repository.AddonRepository;
 import com.ecommerce.menu.infrastructure.repository.MenuCategoryRepository;
 import com.ecommerce.menu.infrastructure.repository.MenuItemRepository;
@@ -38,6 +39,7 @@ public class MenuItemService {
     private final AddonRepository addonRepository;
     private final VariantRepository variantRepository;
     private final MenuMapper menuMapper;
+    private final MenuEventProducer eventProducer;
 
     @Transactional
     public Mono<MenuItemResponse> createMenuItem(CreateMenuItemRequest request) {
@@ -59,7 +61,11 @@ public class MenuItemService {
                                     tuple.getT2()
                             ));
                 })
-                .doOnSuccess(r -> log.info("Menu item created: {}", r.getId()));
+                .doOnSuccess(r -> {
+                    // 👇 ENVIAR EVENTO
+                    eventProducer.sendMenuItemCreated(item);
+                    log.info("Menu item created: {}", r.getId());
+                });
     }
 
     private Mono<List<VariantResponse>> createVariants(List<CreateVariantRequest> variants, MenuItem savedItem) {
@@ -147,6 +153,7 @@ public class MenuItemService {
                     updateFields(item, request);
                     return menuItemRepository.save(item);
                 })
+                .doOnSuccess(eventProducer::sendMenuItemUpdated) // 👈 ADICIONAR
                 .flatMap(this::enrichWithDetails);
     }
 
@@ -158,6 +165,7 @@ public class MenuItemService {
                     item.markAsAvailable();
                     return menuItemRepository.save(item);
                 })
+                .doOnSuccess(eventProducer::sendMenuItemAvailable) // 👈 ADICIONAR
                 .flatMap(this::enrichWithDetails);
     }
 
@@ -169,6 +177,7 @@ public class MenuItemService {
                     item.markAsUnavailable();
                     return menuItemRepository.save(item);
                 })
+                .doOnSuccess(eventProducer::sendMenuItemUnavailable) // 👈 ADICIONAR
                 .flatMap(this::enrichWithDetails);
     }
 
@@ -180,6 +189,7 @@ public class MenuItemService {
                     item.feature();
                     return menuItemRepository.save(item);
                 })
+                .doOnSuccess(eventProducer::sendMenuItemFeatured) // 👈 ADICIONAR
                 .flatMap(this::enrichWithDetails);
     }
 
@@ -191,6 +201,7 @@ public class MenuItemService {
                     item.unfeature();
                     return menuItemRepository.save(item);
                 })
+                .doOnSuccess(eventProducer::sendMenuItemUnfeatured) // 👈 ADICIONAR
                 .flatMap(this::enrichWithDetails);
     }
 
@@ -204,6 +215,7 @@ public class MenuItemService {
                         addonRepository.deleteByMenuItemId(id)
                                 .then(variantRepository.deleteByMenuItemId(id))
                                 .then(menuItemRepository.deleteById(id))
+                                .doOnSuccess(v -> eventProducer.sendMenuItemDeleted(id, item.getRestaurantId())) // 👈 ADICIONAR
                 );
     }
 
