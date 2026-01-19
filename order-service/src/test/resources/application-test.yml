@@ -13,16 +13,16 @@ spring:
       mode: always
       schema-locations: classpath:schema-test.sql
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
   kafka:
     bootstrap-servers: localhost:9092
     listener:
       auto-startup: false
     admin:
       auto-create: false
-
-  cloud:
-    discovery:
-      enabled: false
 
 eureka:
   client:
@@ -31,4 +31,4 @@ eureka:
 logging:
   level:
     root: WARN
-    com.ecommerce: INFO
+    com.ecommerce: DEBUG

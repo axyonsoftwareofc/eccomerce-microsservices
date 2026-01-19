@@ -2,13 +2,13 @@
 package com.ecommerce.restaurant.config;
 
 import com.ecommerce.restaurant.infrastructure.messaging.producer.RestaurantEventProducer;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 
 @TestConfiguration
 public class TestConfig {
@@ -16,17 +16,16 @@ public class TestConfig {
     @Bean
     @Primary
     public RestaurantEventProducer restaurantEventProducer() {
-        RestaurantEventProducer mock = Mockito.mock(RestaurantEventProducer.class);
-        // Mock todos os métodos void
-        doNothing().when(mock).sendRestaurantCreated(any());
-        doNothing().when(mock).sendRestaurantUpdated(any());
-        doNothing().when(mock).sendRestaurantDeleted(any(), any());
-        doNothing().when(mock).sendRestaurantOpened(any());
-        doNothing().when(mock).sendRestaurantClosed(any());
-        doNothing().when(mock).sendRestaurantActivated(any());
-        doNothing().when(mock).sendRestaurantSuspended(any());
-        doNothing().when(mock).sendOrdersPaused(any());
-        doNothing().when(mock).sendOrdersResumed(any());
-        return mock;
+        RestaurantEventProducer mockProducer = mock(RestaurantEventProducer.class);
+        doNothing().when(mockProducer).sendRestaurantCreated(any());
+        doNothing().when(mockProducer).sendRestaurantUpdated(any());
+        doNothing().when(mockProducer).sendRestaurantDeleted(any(), any());
+        doNothing().when(mockProducer).sendRestaurantOpened(any());
+        doNothing().when(mockProducer).sendRestaurantClosed(any());
+        doNothing().when(mockProducer).sendRestaurantActivated(any());
+        doNothing().when(mockProducer).sendRestaurantSuspended(any());
+        doNothing().when(mockProducer).sendOrdersPaused(any());
+        doNothing().when(mockProducer).sendOrdersResumed(any());
+        return mockProducer;
     }
 }

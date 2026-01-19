@@ -5,6 +5,7 @@ import com.ecommerce.order.application.dto.request.CreateOrderRequest;
 import com.ecommerce.order.application.dto.request.OrderItemRequest;
 import com.ecommerce.order.application.dto.request.UpdateOrderStatusRequest;
 import com.ecommerce.order.application.dto.response.OrderResponse;
+import com.ecommerce.order.config.TestConfig;
 import com.ecommerce.order.domain.entity.OrderStatus;
 import com.ecommerce.order.domain.exception.InvalidOrderStateException;
 import com.ecommerce.order.domain.exception.OrderNotFoundException;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.test.StepVerifier;
 
@@ -22,6 +24,7 @@ import java.util.UUID;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Import(TestConfig.class)
 @DisplayName("OrderService Tests")
 class OrderServiceTest {
 

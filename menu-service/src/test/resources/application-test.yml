@@ -3,6 +3,9 @@ spring:
   application:
     name: menu-service-test
 
+  main:
+    allow-bean-definition-overriding: true
+
   r2dbc:
     url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
     username: sa
@@ -13,14 +16,34 @@ spring:
       mode: always
       schema-locations: classpath:schema-test.sql
 
+  # Desabilitar Kafka completamente
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+      - org.springframework.boot.autoconfigure.kafka.KafkaAnnotationDrivenConfiguration
+
   kafka:
     bootstrap-servers: localhost:9092
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false
+    producer:
+      bootstrap-servers: localhost:9092
+
+  cloud:
+    discovery:
+      enabled: false
 
 eureka:
   client:
     enabled: false
+    register-with-eureka: false
+    fetch-registry: false
 
 logging:
   level:
     root: WARN
     com.ecommerce: DEBUG
+    org.springframework.kafka: OFF
+    org.apache.kafka: OFF

@@ -9,14 +9,17 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.test.StepVerifier;
+import com.ecommerce.menu.config.TestConfig;
 
 import java.time.LocalTime;
 import java.util.UUID;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Import(TestConfig.class)
 @DisplayName("MenuCategoryService Tests")
 class MenuCategoryServiceTest {
 
