@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.domain.Persistable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("orders")
-public class Order {
+public class Order implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -124,6 +125,21 @@ public class Order {
     @Transient
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
+
+    // ========== PERSISTABLE IMPLEMENTATION ==========
+    @Transient
+    @Builder.Default
+    private boolean isNew = true;
+
+    @Override
+    public boolean isNew() {
+        return isNew || id == null;
+    }
+
+    public Order markAsNotNew() {
+        this.isNew = false;
+        return this;
+    }
 
     // ========== MÉTODOS DE DOMÍNIO ==========
 

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 
 import java.util.UUID;
 
@@ -16,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("restaurant_categories")
-public class Category {
+public class Category implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -33,4 +35,21 @@ public class Category {
 
     @Column("display_order")
     private Integer displayOrder;
+
+    // 3. Adicionar este bloco ANTES dos métodos de domínio:
+
+    // ========== PERSISTABLE IMPLEMENTATION ==========
+    @Transient
+    @Builder.Default
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
+    }
+
+    public Category markAsNotNew() {
+        this.newEntity = false;
+        return this;
+    }
 }

@@ -229,4 +229,6 @@ public class RestaurantService {
         if (request.getIsOpenOnWeekends() != null) restaurant.setIsOpenOnWeekends(request.getIsOpenOnWeekends());
         if (request.getCategoryId() != null) restaurant.setCategoryId(request.getCategoryId());
     }
+
+
 }

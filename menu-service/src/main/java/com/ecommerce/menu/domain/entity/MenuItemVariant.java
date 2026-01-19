@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -18,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("menu_item_variants")
-public class MenuItemVariant {
+public class MenuItemVariant implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -27,23 +29,23 @@ public class MenuItemVariant {
     private UUID menuItemId;
 
     @Column("name")
-    private String name; // "Pequeno", "Médio", "Grande", "Família"
+    private String name;
 
     @Column("variant_type")
-    private VariantType variantType; // SIZE, FLAVOR, PORTION
+    private VariantType variantType;
 
     @Column("price")
-    private BigDecimal price; // Preço desta variante (substitui o preço base)
+    private BigDecimal price;
 
     @Column("price_modifier")
-    private BigDecimal priceModifier; // OU usa modificador (+5.00, -2.00)
+    private BigDecimal priceModifier;
 
     @Column("serves")
-    private Integer serves; // Quantas pessoas serve esta variante
+    private Integer serves;
 
     @Column("is_default")
     @Builder.Default
-    private Boolean isDefault = false; // Se é a opção padrão
+    private Boolean isDefault = false;
 
     @Column("is_available")
     @Builder.Default
@@ -57,16 +59,31 @@ public class MenuItemVariant {
     @Column("created_at")
     private LocalDateTime createdAt;
 
+    // ========== PERSISTABLE IMPLEMENTATION ==========
+    @Transient
+    @Builder.Default
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
+    }
+
+    public MenuItemVariant markAsNotNew() {
+        this.newEntity = false;
+        return this;
+    }
+
     // ========== MÉTODOS DE DOMÍNIO ==========
 
     public BigDecimal calculateFinalPrice(BigDecimal basePrice) {
         if (this.price != null) {
-            return this.price; // Usa preço fixo da variante
+            return this.price;
         }
         if (this.priceModifier != null) {
-            return basePrice.add(this.priceModifier); // Usa modificador
+            return basePrice.add(this.priceModifier);
         }
-        return basePrice; // Usa preço base do item
+        return basePrice;
     }
 
     public void markAsAvailable() {

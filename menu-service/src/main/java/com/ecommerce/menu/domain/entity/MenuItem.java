@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -20,7 +22,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("menu_items")
-public class MenuItem {
+public class MenuItem implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -40,27 +42,24 @@ public class MenuItem {
     @Column("image_url")
     private String imageUrl;
 
-    // ========== PREÇO ==========
     @Column("price")
     private BigDecimal price;
 
     @Column("original_price")
-    private BigDecimal originalPrice; // Para mostrar desconto
+    private BigDecimal originalPrice;
 
     @Column("discount_percentage")
     private BigDecimal discountPercentage;
 
-    // ========== INFORMAÇÕES DO PRATO ==========
     @Column("preparation_time")
-    private Integer preparationTime; // em minutos
+    private Integer preparationTime;
 
     @Column("serves")
-    private Integer serves; // Serve X pessoas
+    private Integer serves;
 
     @Column("calories")
     private Integer calories;
 
-    // ========== TAGS ALIMENTARES ==========
     @Column("is_vegetarian")
     @Builder.Default
     private Boolean isVegetarian = false;
@@ -78,45 +77,40 @@ public class MenuItem {
     private Boolean isSpicy = false;
 
     @Column("spicy_level")
-    private Integer spicyLevel; // 1-3
+    private Integer spicyLevel;
 
-    // ========== DISPONIBILIDADE ==========
     @Column("is_available")
     @Builder.Default
     private Boolean isAvailable = true;
 
     @Column("is_featured")
     @Builder.Default
-    private Boolean isFeatured = false; // Destaque
+    private Boolean isFeatured = false;
 
     @Column("is_best_seller")
     @Builder.Default
     private Boolean isBestSeller = false;
 
     @Column("available_from")
-    private LocalTime availableFrom; // Disponível a partir de
+    private LocalTime availableFrom;
 
     @Column("available_until")
-    private LocalTime availableUntil; // Disponível até
+    private LocalTime availableUntil;
 
-    // ========== ESTOQUE (opcional) ==========
     @Column("stock_quantity")
-    private Integer stockQuantity; // null = ilimitado
+    private Integer stockQuantity;
 
     @Column("max_quantity_per_order")
     private Integer maxQuantityPerOrder;
 
-    // ========== ORDENAÇÃO ==========
     @Column("display_order")
     @Builder.Default
     private Integer displayOrder = 0;
 
-    // ========== ESTATÍSTICAS ==========
     @Column("total_orders")
     @Builder.Default
     private Integer totalOrders = 0;
 
-    // ========== TIMESTAMPS ==========
     @CreatedDate
     @Column("created_at")
     private LocalDateTime createdAt;
@@ -125,6 +119,21 @@ public class MenuItem {
     @Column("updated_at")
     private LocalDateTime updatedAt;
 
+    // ========== PERSISTABLE IMPLEMENTATION ==========
+    @Transient
+    @Builder.Default
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
+    }
+
+    public MenuItem markAsNotNew() {
+        this.newEntity = false;
+        return this;
+    }
+
     // ========== MÉTODOS DE DOMÍNIO ==========
 
     public boolean isCurrentlyAvailable() {
@@ -132,12 +141,10 @@ public class MenuItem {
             return false;
         }
 
-        // Verificar estoque
         if (stockQuantity != null && stockQuantity <= 0) {
             return false;
         }
 
-        // Verificar horário
         if (availableFrom == null || availableUntil == null) {
             return true;
         }

@@ -32,9 +32,13 @@ public class MenuCategoryService {
 
         MenuCategory category = menuMapper.toCategoryEntity(request);
         category.setId(UUID.randomUUID());
+        // isNew já é true por padrão no @Builder.Default
 
         return categoryRepository.save(category)
-                .map(c -> menuMapper.toCategoryResponseWithItems(c, null, 0))
+                .map(saved -> {
+                    saved.markAsNotNew(); // Marca como não novo após salvar
+                    return menuMapper.toCategoryResponseWithItems(saved, null, 0);
+                })
                 .doOnSuccess(c -> log.info("Category created: {}", c.getId()));
     }
 

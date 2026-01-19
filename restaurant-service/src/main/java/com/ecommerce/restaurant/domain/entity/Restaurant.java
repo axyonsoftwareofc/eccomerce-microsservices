@@ -1,4 +1,3 @@
-// domain/entity/Restaurant.java
 package com.ecommerce.restaurant.domain.entity;
 
 import lombok.AllArgsConstructor;
@@ -8,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -21,7 +22,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("restaurants")
-public class Restaurant {
+public class Restaurant implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -86,10 +87,10 @@ public class Restaurant {
     private BigDecimal deliveryFee;
 
     @Column("avg_preparation_time")
-    private Integer avgPreparationTime; // em minutos
+    private Integer avgPreparationTime;
 
     @Column("avg_delivery_time")
-    private Integer avgDeliveryTime; // em minutos
+    private Integer avgDeliveryTime;
 
     // ========== HORÁRIO DE FUNCIONAMENTO ==========
     @Column("opens_at")
@@ -104,7 +105,7 @@ public class Restaurant {
 
     // ========== CATEGORIA ==========
     @Column("category_id")
-    private UUID categoryId; // Pizzaria, Hamburgueria, Japonês, etc.
+    private UUID categoryId;
 
     // ========== STATUS ==========
     @Column("status")
@@ -141,6 +142,21 @@ public class Restaurant {
     @Column("updated_at")
     private LocalDateTime updatedAt;
 
+    // ========== PERSISTABLE IMPLEMENTATION ==========
+    @Transient
+    @Builder.Default
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
+    }
+
+    public Restaurant markAsNotNew() {
+        this.newEntity = false;
+        return this;
+    }
+
     // ========== MÉTODOS DE DOMÍNIO ==========
 
     public boolean isCurrentlyOpen() {
@@ -158,9 +174,7 @@ public class Restaurant {
 
         LocalTime now = LocalTime.now();
 
-        // Verifica se o horário de fechamento é depois da meia-noite
         if (closesAt.isBefore(opensAt)) {
-            // Ex: abre 18:00, fecha 02:00
             return now.isAfter(opensAt) || now.isBefore(closesAt);
         }
 
@@ -220,7 +234,7 @@ public class Restaurant {
     }
 
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; // Raio da Terra em km
+        final int R = 6371;
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -19,7 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("menu_categories")
-public class MenuCategory {
+public class MenuCategory implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -28,7 +30,7 @@ public class MenuCategory {
     private UUID restaurantId;
 
     @Column("name")
-    private String name; // Entradas, Pratos Principais, Sobremesas, Bebidas
+    private String name;
 
     @Column("description")
     private String description;
@@ -44,7 +46,6 @@ public class MenuCategory {
     @Builder.Default
     private Integer displayOrder = 0;
 
-    // Horário de disponibilidade (ex: café da manhã só até 11h)
     @Column("available_from")
     private LocalTime availableFrom;
 
@@ -58,6 +59,21 @@ public class MenuCategory {
     @LastModifiedDate
     @Column("updated_at")
     private LocalDateTime updatedAt;
+
+    // ========== PERSISTABLE IMPLEMENTATION ==========
+    @Transient
+    @Builder.Default
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
+    }
+
+    public MenuCategory markAsNotNew() {
+        this.newEntity = false;
+        return this;
+    }
 
     // ========== MÉTODOS DE DOMÍNIO ==========
 

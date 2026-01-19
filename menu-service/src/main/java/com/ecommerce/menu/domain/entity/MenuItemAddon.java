@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -18,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("menu_item_addons")
-public class MenuItemAddon {
+public class MenuItemAddon implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -27,13 +29,13 @@ public class MenuItemAddon {
     private UUID menuItemId;
 
     @Column("name")
-    private String name; // "Bacon extra", "Queijo cheddar", "Ovo"
+    private String name;
 
     @Column("description")
     private String description;
 
     @Column("price")
-    private BigDecimal price; // Preço adicional
+    private BigDecimal price;
 
     @Column("is_available")
     @Builder.Default
@@ -41,11 +43,11 @@ public class MenuItemAddon {
 
     @Column("max_quantity")
     @Builder.Default
-    private Integer maxQuantity = 1; // Máximo que pode adicionar
+    private Integer maxQuantity = 1;
 
     @Column("is_required")
     @Builder.Default
-    private Boolean isRequired = false; // Se é obrigatório escolher
+    private Boolean isRequired = false;
 
     @Column("display_order")
     @Builder.Default
@@ -54,6 +56,21 @@ public class MenuItemAddon {
     @CreatedDate
     @Column("created_at")
     private LocalDateTime createdAt;
+
+    // ========== PERSISTABLE IMPLEMENTATION ==========
+    @Transient
+    @Builder.Default
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
+    }
+
+    public MenuItemAddon markAsNotNew() {
+        this.newEntity = false;
+        return this;
+    }
 
     // ========== MÉTODOS DE DOMÍNIO ==========
 

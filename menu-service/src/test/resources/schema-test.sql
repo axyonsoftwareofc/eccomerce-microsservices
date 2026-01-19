@@ -54,8 +54,13 @@ CREATE TABLE menu_item_variants (
     id UUID PRIMARY KEY,
     menu_item_id UUID NOT NULL,
     name VARCHAR(100) NOT NULL,
-    price_adjustment DECIMAL(10,2) DEFAULT 0,
+    variant_type VARCHAR(50),
+    price DECIMAL(10,2),
+    price_modifier DECIMAL(10,2),
+    serves INT,
+    is_default BOOLEAN DEFAULT FALSE,
     is_available BOOLEAN DEFAULT TRUE,
+    display_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE
 );
@@ -64,8 +69,12 @@ CREATE TABLE menu_item_addons (
     id UUID PRIMARY KEY,
     menu_item_id UUID NOT NULL,
     name VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
     price DECIMAL(10,2) NOT NULL,
     is_available BOOLEAN DEFAULT TRUE,
+    max_quantity INT DEFAULT 1,
+    is_required BOOLEAN DEFAULT FALSE,
+    display_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE
 );
@@ -73,3 +82,5 @@ CREATE TABLE menu_item_addons (
 CREATE INDEX idx_categories_restaurant ON menu_categories(restaurant_id);
 CREATE INDEX idx_items_category ON menu_items(category_id);
 CREATE INDEX idx_items_restaurant ON menu_items(restaurant_id);
+CREATE INDEX idx_variants_item ON menu_item_variants(menu_item_id);
+CREATE INDEX idx_addons_item ON menu_item_addons(menu_item_id);
